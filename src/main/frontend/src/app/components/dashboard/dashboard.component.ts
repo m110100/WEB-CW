@@ -278,6 +278,13 @@ export class DashboardComponent implements OnInit {
     }
   }
 
+  seeResults(patient: User, survey: SurveyInfoResponse | PatientSurveyInfo) {
+    const patientId = patient.id;
+    const surveyId = survey.id;
+
+    this.router.navigate(['results/survey/', surveyId, patientId]);
+  }
+
   toggleSidenav() {
     this.hoverSidenav = true;
   }

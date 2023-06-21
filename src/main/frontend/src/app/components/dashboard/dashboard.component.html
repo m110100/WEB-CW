@@ -206,7 +206,8 @@
 
                 <mat-menu #actionsMenu="matMenu">
                   <button mat-menu-item [disabled]="getCurrentDate(survey)" (click)="passSurvey(survey)">Пройти опрос</button>
-                  <button mat-menu-item [disabled]="survey.lastPassageDate === null">Посмотреть результаты</button>
+                  <button mat-menu-item [disabled]="survey.lastPassageDate === null"
+                          (click)="seeResults(user, survey)">Посмотреть результаты</button>
                 </mat-menu>
               </td>
             </ng-container>

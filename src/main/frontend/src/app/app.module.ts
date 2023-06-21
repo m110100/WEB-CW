@@ -47,6 +47,7 @@ import { PassingSurveyComponent } from './components/survey/passing-survey/passi
 import { GivenRecommendationComponent } from './components/survey/dialogs/given-recommendation/given-recommendation.component';
 import {UnsavedChangesGuard} from "./guards/unsavedChangesGuard";
 import {AccessPassingSurveyGuard} from "./guards/access-passing-survey.guard";
+import { ResultsComponent } from './components/survey/results/results.component';
 
 const ROUTES: Routes = [
   {
@@ -105,9 +106,11 @@ const ROUTES: Routes = [
     component: PassingSurveyComponent,
     canActivate: [AccessPassingSurveyGuard],
     canDeactivate: [UnsavedChangesGuard]
+  },
+  {
+    path: "results/survey/:surveyId/:patientId",
+    component: ResultsComponent
   }
-
-  // Дополнить в случае необходимости
 ]
 
 @NgModule({
@@ -124,6 +127,7 @@ const ROUTES: Routes = [
     SurveyRecommendationDialogComponent,
     PassingSurveyComponent,
     GivenRecommendationComponent,
+    ResultsComponent,
   ],
   imports: [
     BrowserModule,
