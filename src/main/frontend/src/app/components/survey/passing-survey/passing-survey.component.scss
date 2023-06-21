@@ -1,0 +1,50 @@
+.form-preview-block {
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  padding: 32px;
+
+  .form-preview-block-info {
+    display: flex;
+    flex-direction: column;
+    font-size: 24px;
+    font-weight: 500;
+    padding-bottom: 56px;
+    gap: 24px;
+    margin: 0 auto;
+    text-align: center;
+
+    #survey-description {
+      font-size: 16px;
+      font-weight: 400;
+      text-align: center;
+      color: #737b89;
+    }
+  }
+
+  .form-preview-block-questions {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+
+    .form-preview-block-questions-text {
+      font-size: 16px;
+      font-weight: 500;
+      margin-bottom: 12px;
+    }
+
+    .form-preview-block-questions-answers {
+      display: flex;
+      flex-direction: column;
+    }
+  }
+}
+
+.answer-textarea {
+  width: 460px;
+}
+
+.footer {
+  margin: 0 auto;
+  text-align: center;
+  padding-top: 56px;
+}

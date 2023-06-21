@@ -1,0 +1,308 @@
+<mat-sidenav-container>
+  <mat-sidenav mode="side" opened class="sidenav"
+               [fixedInViewport]="true" [fixedTopGap]="0"
+               [fixedBottomGap]="0">
+    <div class="sidenav-content"
+         (mouseenter)="toggleSidenav()"
+         (mouseleave)="hideSidenav()">
+      <ng-container *ngFor="let item of sidenavItems">
+        <div class="sidenav-content-item" [ngClass]="{'logout': item.icon === 'logout'}"
+             *ngIf="shouldDisplayMenuItem(item)"
+             [routerLink]="item.link"
+             (click)="menuItemClicked(item)">
+          <mat-icon>{{ item.icon }}</mat-icon>
+          <span *ngIf="hoverSidenav">{{ item.text }}</span>
+        </div>
+      </ng-container>
+    </div>
+  </mat-sidenav>
+  <mat-sidenav-content>
+    <ng-container *ngIf="user.role === 'DOCTOR'">
+      <div class="container">
+        <mat-stepper [animationDuration]="'0.2s'">
+          <mat-step>
+            <ng-template matStepLabel>Общая информация</ng-template>
+            <div class="form-block">
+              <span class="form-title">Общая информация</span>
+              <span class="form-subtitle">Заполните все необходимые поля для создания опроса</span>
+            </div>
+            <div class="form-group">
+              <mat-form-field appearance="outline">
+                <mat-label>Название</mat-label>
+                <input matInput [(ngModel)]="survey.title">
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Описание</mat-label>
+                <textarea matInput [(ngModel)]="survey.description"
+                          cdkTextareaAutosize
+                          cdkAutosizeMinRows="1"
+                          cdkAutosizeMaxRows="6"></textarea>
+              </mat-form-field>
+
+              <!-- Hide if available for all -->
+              <mat-form-field appearance="outline" *ngIf="!survey.isPublic">
+                <mat-label>Специальность</mat-label>
+                <mat-select [(ngModel)]="survey.speciality" [(value)]="survey.speciality">
+                  <mat-option *ngFor="let speciality of specialities" [value]="speciality.name">{{ speciality.name }}</mat-option>
+                </mat-select>
+              </mat-form-field>
+
+              <div class="form-sub">
+                <span class="form-group-sub">Тип оценки опроса</span>
+
+                <mat-radio-group class="form-group-select" color="primary" [(ngModel)]="survey.isRating">
+                  <mat-radio-button [value]="true" (change)="onRatingTypeChange(true)">Со шкалой оценки</mat-radio-button>
+                  <mat-radio-button [value]="false" (change)="onRatingTypeChange(false)">Без шкалы оценки</mat-radio-button>
+                </mat-radio-group>
+              </div>
+
+              <div class="form-sub">
+                <span class="form-group-sub">Тип доступа опроса</span>
+
+                <mat-radio-group class="form-group-select" color="primary" [(ngModel)]="survey.isPublic">
+                  <mat-radio-button [value]="true" (change)="onPublicAccessChange(true)">Доступен всем</mat-radio-button>
+                  <mat-radio-button [value]="false" (change)="onPublicAccessChange(false)">Только пациентам записавшимся ко врачу с определенной специальностью</mat-radio-button>
+                </mat-radio-group>
+              </div>
+              <mat-divider class="divider"></mat-divider>
+              <div class="next-btn-container">
+                <button mat-flat-button color="primary" class="next-btn" matStepperNext>
+                  Продолжить
+                  <mat-icon iconPositionEnd>chevron_right</mat-icon>
+                </button>
+              </div>
+            </div>
+          </mat-step>
+          <mat-step>
+            <ng-template matStepLabel>Вопросы</ng-template>
+            <div class="form-block">
+              <span class="form-title">Вопросы</span>
+              <span class="form-subtitle">Добавляйте вопросы, выбирая из левого меню</span>
+            </div>
+            <div class="form-questions-group">
+              <div class="questions-block">
+                <mat-list class="q-type-block">
+                  <mat-list-item class="q-type-box" (click)="addQuestion(QuestionType.TEXT)"
+                                 matRipple matRippleColor="rgba(63, 81, 181, 0.05)">
+                    <div class="q-type-box-item">
+                      <mat-icon>notes</mat-icon>
+                      <span class="mat-subtitle-2">Текст</span>
+                    </div>
+                  </mat-list-item>
+                  <mat-list-item class="q-type-box" (click)="addQuestion(QuestionType.SINGLE)"
+                                 matRipple matRippleColor="rgba(63, 81, 181, 0.05)">
+                    <div class="q-type-box-item">
+                      <mat-icon>radio_button_checked</mat-icon>
+                      <span class="mat-subtitle-2">Один из списка</span>
+                    </div>
+                  </mat-list-item>
+                  <mat-list-item class="q-type-box" (click)="addQuestion(QuestionType.MULTIPLE)"
+                                 matRipple matRippleColor="rgba(63, 81, 181, 0.05)">
+                    <div class="q-type-box-item">
+                      <mat-icon>check_box</mat-icon>
+                      <span class="mat-subtitle-2">Несколько из списка</span>
+                    </div>
+                  </mat-list-item>
+                </mat-list>
+                <mat-accordion displayMode="flat" class="q-list-block" multi cdkDropList (cdkDropListDropped)="onQuestionDropped($event)">
+                  <div class="questions-block-info">
+                    Список вопросов
+                  </div>
+                  <mat-expansion-panel class="q-list-box" hideToggle
+                                       *ngFor="let question of survey.questions"
+                                       cdkDrag [cdkDragData]="question"
+                                       cdkDragBoundary=".q-list-block">
+                    <mat-expansion-panel-header class="expansion" matRipple matRippleColor="rgba(63, 81, 181, 0.05)">
+                      <mat-panel-title>
+                        <mat-icon>{{ getQuestionIcon(question.questionType) }}</mat-icon>
+                        <span id="question-text">{{ question.questionText }}</span>
+                      </mat-panel-title>
+                      <mat-panel-description class="q-list-block-actions">
+                        <div class="q-action"
+                             matRipple
+                             matRippleColor="rgba(63, 81, 181, 0.05)"
+                             [matRippleCentered]="true"
+                             [matRippleRadius]="24"
+                             (click)="editQuestion(question)">
+                          <mat-icon>
+                            edit
+                          </mat-icon>
+                        </div>
+                        <div class="q-action"
+                             matRipple
+                             matRippleColor="rgba(63, 81, 181, 0.05)"
+                             [matRippleCentered]="true"
+                             [matRippleRadius]="24"
+                             (click)="removeQuestion(question)">
+                          <mat-icon>
+                            close
+                          </mat-icon>
+                        </div>
+                      </mat-panel-description>
+                    </mat-expansion-panel-header>
+                    <mat-list *ngIf="question.questionType !== QuestionType.TEXT">
+                      <mat-list-item>
+                        <span>Список ответов</span>
+                      </mat-list-item>
+                      <mat-list-item *ngFor="let answer of question.answers" class="a-box-item">
+                        <div class="q-list-answers">
+                          <div class="a-box">
+                            <mat-icon>
+                              {{ getAnswerIcon(question.questionType) }}
+                            </mat-icon>
+                            <span>
+                            {{ answer.answerText }}
+                          </span>
+                          </div>
+                        </div>
+                      </mat-list-item>
+                    </mat-list>
+                  </mat-expansion-panel>
+                </mat-accordion>
+              </div>
+            </div>
+            <mat-divider class="divider"></mat-divider>
+            <div class="next-btn-container">
+              <button mat-flat-button color="primary" class="next-btn" matStepperNext>
+                Продолжить
+                <mat-icon iconPositionEnd>chevron_right</mat-icon>
+              </button>
+            </div>
+          </mat-step>
+          <mat-step *ngIf="survey.isRating">
+            <ng-template matStepLabel>Рекомендации</ng-template>
+            <div class="form-block">
+              <span class="form-title">Рекомендации</span>
+              <span class="form-subtitle" id="info">
+            <mat-icon class="material-icons-outlined"
+                      matTooltip="Считается общий балл за каждый данный ответ, набранное значение будет сравниваться с
+                      минимальным и максимальным баллов рекомендации, если оно находится в этом промежутке, то будет получена соответствующая рекомендация"
+                      [matTooltipClass]="{'info-tooltip': true}"
+                      matTooltipPosition="below">
+              info
+            </mat-icon>
+            Добавляйте рекомендации, не забывая указывать количество баллов
+          </span>
+            </div>
+            <form [formGroup]="recommendationForm" (ngSubmit)="addRecommendation()">
+              <div class="form-group">
+                <mat-form-field appearance="outline">
+                  <mat-label>Текст рекомендации</mat-label>
+                  <textarea formControlName="recommendationText" matInput cdkTextareaAutosize></textarea>
+                </mat-form-field>
+                <mat-form-field appearance="outline">
+                  <mat-label>Минимальное количество баллов</mat-label>
+                  <input formControlName="recommendationMinScore" matInput type="number" min="0" [defaultValue]="0">
+                </mat-form-field>
+                <mat-form-field appearance="outline">
+                  <mat-label>Максимальное количество баллов</mat-label>
+                  <input formControlName="recommendationMaxScore" matInput type="number" min="0" [defaultValue]="0">
+                </mat-form-field>
+                <button mat-stroked-button color="primary" id="add-recommendation">Добавить</button>
+                <div class="recommendations-list" *ngIf="recommendations.length !== 0">
+                  <div class="recommendations-title">Список рекомендаций</div>
+                  <div class="recommendations-items">
+                    <div class="recommendations-item" *ngFor="let recommendation of recommendations">
+                      <span>{{ recommendation.recommendationText }}</span>
+                      <div class="recommendations-item-actions">
+                        <div class="q-action"
+                             matRipple
+                             matRippleColor="rgba(63, 81, 181, 0.05)"
+                             [matRippleCentered]="true"
+                             [matRippleRadius]="24"
+                             (click)="editRecommendation(recommendation)">
+                          <mat-icon>
+                            edit
+                          </mat-icon>
+                        </div>
+                        <div class="q-action"
+                             matRipple
+                             matRippleColor="rgba(63, 81, 181, 0.05)"
+                             [matRippleCentered]="true"
+                             [matRippleRadius]="24"
+                             (click)="deleteRecommendation(recommendation)">
+                          <mat-icon>
+                            close
+                          </mat-icon>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </form>
+
+            <mat-divider class="divider"></mat-divider>
+            <div class="next-btn-container">
+              <button mat-flat-button color="primary" class="next-btn" matStepperNext>
+                Продолжить
+                <mat-icon iconPositionEnd>chevron_right</mat-icon>
+              </button>
+            </div>
+          </mat-step>
+          <mat-step>
+            <ng-template matStepLabel>Предосмотр и публикация</ng-template>
+            <div class="form-block">
+              <span class="form-title">Предосмотр</span>
+              <span class="form-subtitle">
+                Перед публикацией, посмотрите как будет выглядеть ваш опрос и обезопасьте себя от ошибок
+              </span>
+            </div>
+            <div class="form-preview-block">
+              <div class="form-preview-block-info">
+                <span>
+                  {{ survey.title }}
+                </span>
+                      <span id="survey-description">
+                  {{ survey.description }}
+                </span>
+              </div>
+              <div class="form-preview-block-questions">
+                <div *ngFor="let question of survey.questions; let i = index">
+                  <div class="form-preview-block-questions-text">
+                    <span>
+                      {{ question.questionText }}
+                    </span>
+                  </div>
+                  <mat-radio-group class="form-preview-block-questions-answers" color="primary"
+                                   *ngIf="question.questionType === QuestionType.SINGLE">
+                    <mat-radio-button *ngFor="let answer of question.answers">
+                      {{ answer.answerText }}
+                    </mat-radio-button>
+                  </mat-radio-group>
+                  <div class="form-preview-block-questions-answers" *ngIf="question.questionType === QuestionType.MULTIPLE">
+                    <mat-checkbox color="primary" *ngFor="let answer of question.answers">
+                      {{ answer.answerText }}
+                    </mat-checkbox>
+                  </div>
+                  <div class="form-preview-block-questions-answers" *ngIf="question.questionType === QuestionType.TEXT">
+                    <mat-form-field class="answer-textarea" appearance="outline">
+                <textarea matInput cdkTextareaAutosize
+                          [formControlName]="'textareaControl_' + i"
+                          [formControl]="getTextareaControl(question, i)"></textarea>
+                      <mat-hint align="start">{{ getRemainingCharacters(question, i) }}</mat-hint>
+                    </mat-form-field>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <mat-error *ngIf="errorMessage" id="error">{{ errorMessage }}</mat-error>
+
+            <mat-divider class="divider"></mat-divider>
+            <div class="next-btn-container">
+              <button mat-flat-button color="primary" class="next-btn" (click)="saveSurvey()">
+                Опубликовать
+                <mat-icon iconPositionEnd>done</mat-icon>
+              </button>
+            </div>
+          </mat-step>
+        </mat-stepper>
+      </div>
+    </ng-container>
+  </mat-sidenav-content>
+</mat-sidenav-container>
+
+
+

@@ -1,0 +1,49 @@
+<div class="container-screen-center">
+  <div class="form-container">
+    <span class="mat-headline-5">Регистрация</span>
+    <span class="mat-subtitle-1">Уже есть аккаунт?
+      <span class="link" routerLink="/auth/login">Войти</span>
+    </span>
+    <mat-divider></mat-divider>
+
+    <form (ngSubmit)="signup()" [formGroup]="signupForm">
+      <mat-form-field appearance="outline">
+        <mat-label>Фамилия</mat-label>
+        <input formControlName="surname" matInput>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Имя</mat-label>
+        <input formControlName="name" matInput>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Отчество</mat-label>
+        <input formControlName="patronymic" matInput>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Полис</mat-label>
+        <input formControlName="insurancePolicy" matInput minlength="16" maxlength="16">
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Email</mat-label>
+        <input formControlName="email" matInput>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Пароль</mat-label>
+        <input formControlName="password" matInput [type]="hidePassword ? 'password' : 'text'" minlength="8">
+        <button mat-icon-button matSuffix (click)="hidePassword = !hidePassword">
+          <mat-icon class="material-icons-outlined icon">
+            {{ hidePassword ? 'visibility_off' : 'visibility' }}
+          </mat-icon>
+        </button>
+        <mat-hint>Пароль должен содержать не менее 8 знаков</mat-hint>
+      </mat-form-field>
+
+      <button mat-flat-button color="primary" type="submit" id="signup-btn">Создать аккаунт</button>
+    </form>
+  </div>
+</div>

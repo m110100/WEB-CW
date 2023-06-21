@@ -1,0 +1,278 @@
+<mat-sidenav-container>
+  <mat-sidenav mode="side" opened class="sidenav"
+               [fixedInViewport]="true" [fixedTopGap]="0"
+               [fixedBottomGap]="0">
+    <div class="sidenav-content"
+         (mouseenter)="toggleSidenav()"
+         (mouseleave)="hideSidenav()">
+      <ng-container *ngFor="let item of sidenavItems">
+        <div class="sidenav-content-item" [ngClass]="{'logout': item.icon === 'logout'}"
+             *ngIf="shouldDisplayMenuItem(item)"
+             [routerLink]="item.link"
+             (click)="menuItemClicked(item)">
+          <mat-icon>{{ item.icon }}</mat-icon>
+          <span *ngIf="hoverSidenav">{{ item.text }}</span>
+        </div>
+      </ng-container>
+    </div>
+  </mat-sidenav>
+  <mat-sidenav-content>
+    <div *ngIf="user.role === 'DOCTOR'">
+      <div class="container">
+        <div class="block" *ngIf="latestSurveys.length !== 0">
+          <span class="mat-headline-5">Последние опросы</span>
+
+          <mat-divider class="divider"></mat-divider>
+
+          <div class="latest">
+            <div class="latest-card" *ngFor="let survey of latestSurveys">
+              <span class="latest-card-title">
+                {{ survey.title }}
+              </span>
+
+              <span class="latest-card-response">
+                {{ changeWordEnding(survey.responseCount, 'ответ') }}
+              </span>
+
+              <span class="latest-card-created">
+                Создан {{ survey.createdAt | date: 'dd.MM.yyyy' }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="nothing-block" *ngIf="latestSurveys.length === 0 && surveys.length === 0 && patients.length === 0">
+          <span>
+            Ничего не найдено.
+            <span routerLink="/create-survey" id="create">Создать опрос?</span>
+          </span>
+        </div>
+
+        <div class="block" *ngIf="surveys.length !== 0">
+          <span class="mat-headline-5">Мои опросы</span>
+
+          <mat-divider class="divider"></mat-divider>
+
+          <div class="search-block">
+            <mat-form-field class="survey-search-field" appearance="outline">
+              <mat-label>Поиск</mat-label>
+              <mat-icon matPrefix>search</mat-icon>
+              <input matInput type="text" placeholder="Название" [(ngModel)]="inputFilter">
+            </mat-form-field>
+            <mat-form-field class="survey-category-field" appearance="outline">
+              <mat-label>Специальность</mat-label>
+              <mat-select [(ngModel)]="specialityFilter">
+                <mat-option [value]="">Все специальности</mat-option>
+                <mat-option *ngFor="let speciality of specialities" [value]="speciality.name">{{ speciality.name }}</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+
+          <table mat-table [dataSource]="surveys">
+            <ng-container matColumnDef="title">
+              <th mat-header-cell *matHeaderCellDef> Название </th>
+              <td mat-cell *matCellDef="let survey"> {{ survey.title }} </td>
+            </ng-container>
+
+            <ng-container matColumnDef="isPublic">
+              <th mat-header-cell *matHeaderCellDef> Доступ </th>
+              <td mat-cell *matCellDef="let survey"> {{ survey.isPublic ? 'Всем' : 'Ограничен' }} </td>
+            </ng-container>
+
+            <ng-container matColumnDef="isRating">
+              <th mat-header-cell *matHeaderCellDef> Шкала оценки </th>
+              <td mat-cell *matCellDef="let survey"> {{ survey.isRating ? 'Да' : 'Нет' }} </td>
+            </ng-container>
+
+            <ng-container matColumnDef="createdAt">
+              <th mat-header-cell *matHeaderCellDef> Дата создания </th>
+              <td mat-cell *matCellDef="let survey"> {{ survey.createdAt | date:'dd.MM.yyyy' }} </td>
+            </ng-container>
+
+            <ng-container matColumnDef="actions">
+              <th mat-header-cell *matHeaderCellDef class="actions"> Действия </th>
+              <td mat-cell *matCellDef="let survey" class="actions">
+                <button mat-icon-button color="primary" [matMenuTriggerFor]="actionsMenu">
+                  <mat-icon>more_horiz</mat-icon>
+                </button>
+
+                <mat-menu #actionsMenu="matMenu">
+                  <button mat-menu-item>Посмотреть результаты</button>
+                  <button mat-menu-item (click)="deleteSurvey(survey)">Удалить</button>
+                </mat-menu>
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="surveyDisplayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: surveyDisplayedColumns"
+                [ngClass]="{'hidden': !isSurveyMatch(row)}"></tr>
+
+          </table>
+        </div>
+
+        <div class="block" *ngIf="patients.length !== 0">
+          <span class="mat-headline-5">Мои пациенты</span>
+
+          <mat-divider class="divider"></mat-divider>
+
+          <div class="search-block">
+            <mat-form-field class="patient-search-field" appearance="outline">
+              <mat-label>Поиск</mat-label>
+              <mat-icon matPrefix>search</mat-icon>
+              <input matInput type="text" placeholder="ФИО" [(ngModel)]="patientSearchValue">
+            </mat-form-field>
+          </div>
+
+          <table mat-table [dataSource]="patients">
+            <ng-container matColumnDef="surname">
+              <th mat-header-cell *matHeaderCellDef> Фамилия </th>
+              <td mat-cell *matCellDef="let patient"> {{ patient.surname }} </td>
+            </ng-container>
+
+            <ng-container matColumnDef="name">
+              <th mat-header-cell *matHeaderCellDef> Имя </th>
+              <td mat-cell *matCellDef="let patient"> {{ patient.name }} </td>
+            </ng-container>
+
+            <ng-container matColumnDef="patronymic">
+              <th mat-header-cell *matHeaderCellDef> Отчество </th>
+              <td mat-cell *matCellDef="let patient"> {{ patient.patronymic ? patient.patronymic : 'Нет'}} </td>
+            </ng-container>
+
+            <ng-container matColumnDef="appointmentDate">
+              <th mat-header-cell *matHeaderCellDef> Дата и время приёма </th>
+              <td mat-cell *matCellDef="let patient"> {{ patient.appointmentDate | date:'dd.MM.yyyy HH:mm' : 'GMT+3' }} </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="patientDisplayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: patientDisplayedColumns"
+                [ngClass]="{'hidden': !isPatientMatch(row)}"></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div *ngIf="user.role === 'PATIENT'">
+      <div class="container">
+        <div class="nothing-block" *ngIf="patientSurveys.length === 0 && doctors.length === 0">
+          <span>
+            Ничего не найдено.
+          </span>
+        </div>
+
+        <div class="block" *ngIf="patientSurveys.length !== 0">
+          <span class="mat-headline-5">Мои опросы</span>
+
+          <mat-divider class="divider"></mat-divider>
+
+          <div class="search-block">
+            <mat-form-field class="survey-search-field" appearance="outline">
+              <mat-label>Поиск</mat-label>
+              <mat-icon matPrefix>search</mat-icon>
+              <input matInput type="text" placeholder="Название" [(ngModel)]="inputFilter">
+            </mat-form-field>
+            <mat-form-field class="survey-category-field" appearance="outline">
+              <mat-label>Специальность</mat-label>
+              <mat-select [(ngModel)]="specialityFilter">
+                <mat-option [value]="">Все специальности</mat-option>
+                <mat-option *ngFor="let speciality of specialities" [value]="speciality.name">{{ speciality.name }}</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+
+          <table mat-table [dataSource]="patientSurveys">
+            <ng-container matColumnDef="title">
+              <th mat-header-cell *matHeaderCellDef> Название </th>
+              <td mat-cell *matCellDef="let survey"> {{ survey.title }} </td>
+            </ng-container>
+
+            <ng-container matColumnDef="speciality">
+              <th mat-header-cell *matHeaderCellDef> Специальность </th>
+              <td mat-cell *matCellDef="let survey"> {{ survey.speciality ? survey.speciality : 'Нет' }} </td>
+            </ng-container>
+
+            <ng-container matColumnDef="lastPassageDate">
+              <th mat-header-cell *matHeaderCellDef> Дата последнего прохождения </th>
+              <td mat-cell *matCellDef="let survey">
+                {{ survey.lastPassageDate ? (survey.lastPassageDate | date:'dd.MM.yyyy') : 'Не пройден' }}
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="actions">
+              <th mat-header-cell *matHeaderCellDef class="actions"> Действия </th>
+              <td mat-cell *matCellDef="let survey" class="actions">
+                <button mat-icon-button color="primary" [matMenuTriggerFor]="actionsMenu">
+                  <mat-icon>more_horiz</mat-icon>
+                </button>
+
+                <mat-menu #actionsMenu="matMenu">
+                  <button mat-menu-item [disabled]="getCurrentDate(survey)" (click)="passSurvey(survey)">Пройти опрос</button>
+                  <button mat-menu-item [disabled]="survey.lastPassageDate === null">Посмотреть результаты</button>
+                </mat-menu>
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="patientSurveyDisplayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: patientSurveyDisplayedColumns"
+                [ngClass]="{'hidden': !isPatientSurveyMatch(row)}"></tr>
+
+          </table>
+        </div>
+
+        <div class="block" *ngIf="doctors.length !== 0">
+          <span class="mat-headline-5">Мои доктора</span>
+
+          <mat-divider class="divider"></mat-divider>
+
+          <div class="search-block">
+            <mat-form-field class="survey-search-field" appearance="outline">
+              <mat-label>Поиск</mat-label>
+              <mat-icon matPrefix>search</mat-icon>
+              <input matInput type="text" placeholder="ФИО" [(ngModel)]="doctorSearchValue">
+            </mat-form-field>
+            <mat-form-field class="survey-category-field" appearance="outline">
+              <mat-label>Специальность</mat-label>
+              <mat-select [(ngModel)]="specialityDoctorFilter">
+                <mat-option [value]="">Все специальности</mat-option>
+                <mat-option *ngFor="let speciality of specialities" [value]="speciality.name">{{ speciality.name }}</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+
+          <table mat-table [dataSource]="doctors">
+            <ng-container matColumnDef="surname">
+              <th mat-header-cell *matHeaderCellDef> Фамилия </th>
+              <td mat-cell *matCellDef="let doctor"> {{ doctor.surname }} </td>
+            </ng-container>
+
+            <ng-container matColumnDef="name">
+              <th mat-header-cell *matHeaderCellDef> Имя </th>
+              <td mat-cell *matCellDef="let doctor"> {{ doctor.name }} </td>
+            </ng-container>
+
+            <ng-container matColumnDef="patronymic">
+              <th mat-header-cell *matHeaderCellDef> Отчество </th>
+              <td mat-cell *matCellDef="let doctor"> {{ doctor.patronymic ? doctor.patronymic : 'Нет'}} </td>
+            </ng-container>
+
+            <ng-container matColumnDef="speciality">
+              <th mat-header-cell *matHeaderCellDef> Специальность </th>
+              <td mat-cell *matCellDef="let doctor"> {{ doctor.speciality.name }} </td>
+            </ng-container>
+
+            <ng-container matColumnDef="appointmentDate">
+              <th mat-header-cell *matHeaderCellDef> Дата и время приёма </th>
+              <td mat-cell *matCellDef="let doctor"> {{ doctor.appointmentDate | date:'dd.MM.yyyy HH:mm' : 'GMT+3' }} </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="doctorDisplayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: doctorDisplayedColumns"
+                [ngClass]="{'hidden': !isDoctorMatch(row)}"></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </mat-sidenav-content>
+</mat-sidenav-container>
+
+

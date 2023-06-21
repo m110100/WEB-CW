@@ -1,0 +1,23 @@
+<div class="container-screen-center">
+  <div class="form-container">
+    <span class="mat-headline-5">Код подтверждения</span>
+    <span class="mat-subtitle-1">
+      На вашу эл. почту отправлен код подтверждения. Введите его в поле ниже
+    </span>
+
+    <mat-divider></mat-divider>
+
+    <form class="token-form" (ngSubmit)="confirmToken()" [formGroup]="confirmGroup">
+      <mat-form-field appearance="outline" class="token-input">
+        <mat-label>Код подтверждения</mat-label>
+        <input formControlName="token" matInput type="text" minlength="36" maxlength="36">
+      </mat-form-field>
+
+      <mat-error *ngIf="errorMessage">{{ errorMessage }}</mat-error>
+
+      <button mat-flat-button color="primary" id="confirm-button" type="submit">
+        Подтвердить
+      </button>
+    </form>
+  </div>
+</div>

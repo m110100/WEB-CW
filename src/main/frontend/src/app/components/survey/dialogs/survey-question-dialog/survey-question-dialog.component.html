@@ -1,0 +1,70 @@
+<h2 mat-dialog-title>Редактирование вопроса</h2>
+
+<mat-dialog-content>
+  <div class="dialog-container">
+    <span class="dialog-container-title">
+      Текст вопроса
+    </span>
+    <mat-form-field appearance="outline">
+      <textarea type="text" matInput cdkTextareaAutosize
+                [value]="updatedQuestion.questionText"
+                [(ngModel)]="updatedQuestion.questionText"
+                placeholder="Введите текст вопроса">
+      </textarea>
+    </mat-form-field>
+  </div>
+  <div class="dialog-container" *ngIf="updatedQuestion.questionType === QuestionType.TEXT &&
+                                (updatedQuestion.inputMinLimit !== null && updatedQuestion.inputMaxLimit !== null)">
+    <mat-form-field appearance="outline">
+      <mat-label>Минимальное кол-во символов</mat-label>
+      <input type="number" matInput [defaultValue]="updatedQuestion.inputMinLimit" [min]="updatedQuestion.inputMinLimit"
+             [value]="updatedQuestion.inputMinLimit.toString()"
+             [(ngModel)]="updatedQuestion.inputMinLimit">
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>Максимальное кол-во символов</mat-label>
+      <input type="number" matInput [defaultValue]="updatedQuestion.inputMinLimit" [min]="0" [max]="updatedQuestion.inputMaxLimit"
+             [value]="updatedQuestion.inputMaxLimit.toString()"
+             [(ngModel)]="updatedQuestion.inputMaxLimit">
+    </mat-form-field>
+  </div>
+  <div class="dialog-container" *ngIf="updatedQuestion.questionType !== QuestionType.TEXT">
+    <span class="dialog-container-title">
+      Варианты ответов
+    </span>
+    <div class="a-container" cdkDropList (cdkDropListDropped)="onAnswerDropped($event)">
+      <div *ngFor="let answer of updatedQuestionAnswers" class="a-box" cdkDrag [cdkDragData]="answer"
+           cdkDragPreviewClass="dragging-preview"
+           cdkDragBoundary=".a-container">
+        <button mat-icon-button class="action" cdkDragHandle>
+          <mat-icon>more_vert</mat-icon>
+        </button>
+        <mat-form-field appearance="outline" class="a-item">
+          <mat-label>Текст ответа</mat-label>
+          <input type="text" matInput
+                 [value]="answer.answerText"
+                 [(ngModel)]="answer.answerText"
+                 placeholder="Добавить вариант ответа">
+        </mat-form-field>
+        <mat-form-field appearance="outline" *ngIf="isRating && answer.score !== null" id="a-item-score">
+          <mat-label>Балл</mat-label>
+          <input type="number" matInput [defaultValue]="0" min="0"
+                 [value]="answer.score.toString()"
+                 [(ngModel)]="answer.score">
+        </mat-form-field>
+        <button mat-icon-button class="action" (click)="removeAnswer(answer)">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
+    </div>
+    <mat-form-field appearance="outline" (click)="addAnswer()">
+      <input type="text" matInput
+                readonly
+                placeholder="Добавить вариант ответа">
+    </mat-form-field>
+  </div>
+  <div class="dialog-actions">
+    <button mat-flat-button (click)="cancel()">Отменить</button>
+    <button mat-flat-button color="primary" (click)="saveQuestion()">Сохранить</button>
+  </div>
+</mat-dialog-content>

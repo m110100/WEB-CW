@@ -1,0 +1,64 @@
+.surveys-list {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  background-color: #FFFFFF;
+  padding: 24px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  margin-bottom: 32px;
+}
+
+.list {
+  padding-top: 24px;
+}
+
+.search-block {
+  padding-top: 24px;
+  display: flex;
+  flex-direction: row;
+  gap: 24px;
+
+  .survey-search-field {
+    width: 75%;
+  }
+
+  .survey-category-field {
+    width: 25%;
+  }
+}
+
+.block {
+  background-color: #FFFFFF;
+  padding: 24px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  margin-bottom: 32px;
+}
+
+.divider {
+  margin-top: 16px;
+}
+
+.mat-mdc-table
+{
+  background-color: transparent !important;
+}
+table {
+  width: 100%;
+  border-collapse: separate;
+  border: 1px solid rgba(0, 0, 0, 0.38);
+  border-radius: 4px;
+}
+table tr:last-child td /*To remove the last border*/
+{
+  border-bottom:0 solid
+}
+
+.hidden {
+  display: none;
+}
+
+.actions {
+  text-align: center;
+}

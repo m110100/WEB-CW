@@ -1,0 +1,43 @@
+<h2 mat-dialog-title>Редактирование рекомендации</h2>
+
+<mat-dialog-content>
+  <form [formGroup]="updatedRecommendationForm">
+    <div class="dialog-container">
+    <span class="dialog-container-title">
+      Текст рекомендации
+    </span>
+      <mat-form-field appearance="outline">
+      <textarea type="text" matInput cdkTextareaAutosize
+                [value]="updatedRecommendation.recommendationText"
+                [(ngModel)]="updatedRecommendation.recommendationText"
+                formControlName="recommendationText"
+                placeholder="Введите текст рекомендации">
+      </textarea>
+      </mat-form-field>
+    </div>
+
+    <div class="dialog-container">
+    <span class="dialog-container-title">
+      Количество баллов
+    </span>
+      <mat-form-field appearance="outline">
+        <mat-label>Минимальный балл</mat-label>
+        <input matInput type="number" min="0" [defaultValue]="0"
+               [value]="updatedRecommendation.minScore.toString()"
+               [(ngModel)]="updatedRecommendation.minScore"
+               formControlName="recommendationMinScore">
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Максимальный балл</mat-label>
+        <input matInput type="number" min="0" [defaultValue]="0"
+               [value]="updatedRecommendation.maxScore.toString()"
+               [(ngModel)]="updatedRecommendation.maxScore"
+               formControlName="recommendationMaxScore">
+      </mat-form-field>
+    </div>
+    <div class="dialog-actions">
+      <button mat-flat-button (click)="cancel()">Отменить</button>
+      <button mat-flat-button color="primary" (click)="saveRecommendation()">Сохранить</button>
+    </div>
+  </form>
+</mat-dialog-content>

@@ -1,0 +1,105 @@
+/* You can add global styles to this file, and also import other style files */
+
+html, body {
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+  background-color: #fafafa;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.container {
+  padding-top: 32px;
+  max-width: 1140px;
+  margin: 0 auto;
+  min-height: 100vh;
+}
+
+.mat-toolbar-single-row {
+  height: 48px !important;
+}
+
+.mat-mdc-snack-bar-container {
+  &.white-snackbar {
+    //border: 1px solid #e0e0e0;
+    --mdc-snackbar-container-color: #fafafa;
+    --mat-mdc-snack-bar-button-color: #3f51b5;
+    --mdc-snackbar-supporting-text-color: #3f51b5;
+  }
+}
+
+.nothing-block {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  height: 100vh;
+  font-size: 32px;
+}
+
+.sidenav {
+  width: auto;
+  padding-top: 32px;
+
+  .sidenav-content {
+    display: flex;
+    padding: 0 24px 24px 24px;
+    flex-direction: column;
+    gap: 32px;
+    height: 100%;
+
+    .sidenav-content-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      color: #212121;
+      transition: 0.2s;
+    }
+
+    .sidenav-content-item:hover {
+      color: #3f51b5;
+    }
+
+    .logout {
+      margin-top: auto;
+    }
+  }
+}
+
+//.mdc-text-field--outlined:not(.mdc-text-field--disabled) .mdc-notched-outline__leading,
+//.mdc-text-field--outlined:not(.mdc-text-field--disabled) .mdc-notched-outline__notch,
+//.mdc-text-field--outlined:not(.mdc-text-field--disabled) .mdc-notched-outline__trailing {
+//  border-color: #d9d9db !important;
+//}
+//.mat-mdc-tab-header {
+//  border-bottom: 1px solid #D5D5D5 !important;
+//}
+//
+//.mat-mdc-tab-labels {
+//  width: 1140px !important;
+//  margin: 0 auto !important;
+//}
+
+//.mdc-tab {
+//  letter-spacing: 0;
+//}
+
+//.container-center {
+//  display: flex;
+//  justify-content: center;
+//  align-items: center;
+//  height: 100vh;
+//}

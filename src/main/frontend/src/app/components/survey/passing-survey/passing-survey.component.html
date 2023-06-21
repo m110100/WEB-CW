@@ -1,0 +1,82 @@
+<mat-sidenav-container>
+  <mat-sidenav mode="side" opened class="sidenav"
+               [fixedInViewport]="true" [fixedTopGap]="0"
+               [fixedBottomGap]="0">
+    <div class="sidenav-content"
+         (mouseenter)="toggleSidenav()"
+         (mouseleave)="hideSidenav()">
+      <ng-container *ngFor="let item of sidenavItems">
+        <div class="sidenav-content-item" [ngClass]="{'logout': item.icon === 'logout'}"
+             *ngIf="shouldDisplayMenuItem(item)"
+             [routerLink]="item.link"
+             (click)="menuItemClicked(item)">
+          <mat-icon>{{ item.icon }}</mat-icon>
+          <span *ngIf="hoverSidenav">{{ item.text }}</span>
+        </div>
+      </ng-container>
+    </div>
+  </mat-sidenav>
+  <mat-sidenav-content>
+    <div *ngIf="user.role === 'PATIENT'">
+      <div class="container">
+        <div class="nothing-block" *ngIf="!survey">
+      <span>
+        Ничего не найдено.
+      </span>
+        </div>
+        <div class="form-preview-block" *ngIf="survey">
+          <div class="form-preview-block-info">
+    <span>
+      {{ survey.title }}
+    </span>
+            <span id="survey-description">
+      {{ survey.description }}
+    </span>
+          </div>
+          <div class="form-preview-block-questions" *ngIf="questions">
+            <div *ngFor="let question of questions; let i = index">
+              <div class="form-preview-block-questions-text">
+              <span>
+                {{ question.questionText }}
+              </span>
+              </div>
+
+              <mat-radio-group class="form-preview-block-questions-answers" color="primary"
+                               *ngIf="question.questionType.toString() === 'SINGLE'"
+                               [(ngModel)]="selectedSingleAnswers![question.id]"
+                               [ngModelOptions]="{ standalone: true }">
+                <mat-radio-button *ngFor="let answer of question.answers"
+                                  [value]="{ answerText: answer.answerText, score: answer.score }">
+                  {{ answer.answerText }}
+                </mat-radio-button>
+              </mat-radio-group>
+
+              <div class="form-preview-block-questions-answers" *ngIf="question.questionType.toString() === 'MULTIPLE'">
+                <mat-checkbox color="primary" *ngFor="let answer of question.answers; let i = index"
+                              [(ngModel)]="selectedMultipleAnswers![answer.id]"
+                              [ngModelOptions]="{ standalone: true }">
+                  {{ answer.answerText }}
+                </mat-checkbox>
+              </div>
+
+              <div class="form-preview-block-questions-answers" *ngIf="question.questionType.toString() === 'TEXT'">
+                <mat-form-field class="answer-textarea" appearance="outline">
+            <textarea matInput cdkTextareaAutosize
+                      [(ngModel)]="textInputAnswers![question.id]"
+                      name="textAnswer"></textarea>
+
+                  <mat-hint align="start">Минимальное количество символов - {{ question.inputMinLimit }}</mat-hint>
+                  <mat-hint align="end">{{ getRemainingCharacters(question) }}</mat-hint>
+                </mat-form-field>
+
+              </div>
+            </div>
+          </div>
+          <div class="footer">
+            <button mat-flat-button color="primary" (click)="submitForm()">Отправить</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </mat-sidenav-content>
+</mat-sidenav-container>
