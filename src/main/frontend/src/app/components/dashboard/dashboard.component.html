@@ -25,7 +25,7 @@
           <mat-divider class="divider"></mat-divider>
 
           <div class="latest">
-            <div class="latest-card" *ngFor="let survey of latestSurveys">
+            <div class="latest-card" *ngFor="let survey of latestSurveys" [routerLink]="['/results/survey', survey.id]">
               <span class="latest-card-title">
                 {{ survey.title }}
               </span>
@@ -97,7 +97,7 @@
                 </button>
 
                 <mat-menu #actionsMenu="matMenu">
-                  <button mat-menu-item>Посмотреть результаты</button>
+                  <button mat-menu-item [routerLink]="['/results/survey', survey.id]">Посмотреть результаты</button>
                   <button mat-menu-item (click)="deleteSurvey(survey)">Удалить</button>
                 </mat-menu>
               </td>
@@ -207,7 +207,7 @@
                 <mat-menu #actionsMenu="matMenu">
                   <button mat-menu-item [disabled]="getCurrentDate(survey)" (click)="passSurvey(survey)">Пройти опрос</button>
                   <button mat-menu-item [disabled]="survey.lastPassageDate === null"
-                          (click)="seeResults(user, survey)">Посмотреть результаты</button>
+                          [routerLink]="['/results/survey', survey.id]">Посмотреть результаты</button>
                 </mat-menu>
               </td>
             </ng-container>

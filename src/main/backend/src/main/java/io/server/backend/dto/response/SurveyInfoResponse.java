@@ -9,5 +9,6 @@ public record SurveyInfoResponse(
         Boolean isRating,
         Boolean isPublic,
         LocalDateTime createdAt,
-        SpecialityResponse speciality
+        SpecialityResponse speciality,
+        Long creatorId
 ) { }

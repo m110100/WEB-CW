@@ -18,7 +18,8 @@ public class SurveyMapper implements Function<Survey, SurveyInfoResponse> {
                 survey.getIsRating(),
                 survey.getIsPublic(),
                 survey.getCreatedAt(),
-                survey.getSpeciality() != null ? new SpecialityResponse(survey.getSpeciality().getName()) : null
+                survey.getSpeciality() != null ? new SpecialityResponse(survey.getSpeciality().getName()) : null,
+                survey.getUser().getId()
         );
     }
 }

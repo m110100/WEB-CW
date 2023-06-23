@@ -10,6 +10,10 @@ import java.util.function.Function;
 public class PatientResultsQuestionMapper implements Function<Question, PatientResultsQuestionResponse> {
     @Override
     public PatientResultsQuestionResponse apply(Question question) {
-        return new PatientResultsQuestionResponse(question.getQuestionText(), question.getQuestionType());
+        return new PatientResultsQuestionResponse(
+                question.getId(),
+                question.getQuestionText(),
+                question.getQuestionType()
+        );
     }
 }

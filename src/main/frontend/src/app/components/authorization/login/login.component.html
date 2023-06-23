@@ -1,5 +1,8 @@
 <div class="container-screen-center">
-  <div class="form-container">
+  <div class="form-load" *ngIf="loggedIn">
+    <mat-spinner></mat-spinner>
+  </div>
+  <div class="form-container" *ngIf="!loggedIn">
     <span class="mat-headline-5">Авторизация</span>
     <span class="mat-subtitle-1">Нет аккаунта?
       <span class="link" routerLink="/auth/signup">Зарегистрироваться</span>

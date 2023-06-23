@@ -48,6 +48,10 @@ import { GivenRecommendationComponent } from './components/survey/dialogs/given-
 import {UnsavedChangesGuard} from "./guards/unsavedChangesGuard";
 import {AccessPassingSurveyGuard} from "./guards/access-passing-survey.guard";
 import { ResultsComponent } from './components/survey/results/results.component';
+import {MatAutocompleteModule} from "@angular/material/autocomplete";
+import {MatPaginatorModule} from "@angular/material/paginator";
+import {MatSortModule} from "@angular/material/sort";
+import {MatProgressSpinnerModule} from "@angular/material/progress-spinner";
 
 const ROUTES: Routes = [
   {
@@ -108,9 +112,13 @@ const ROUTES: Routes = [
     canDeactivate: [UnsavedChangesGuard]
   },
   {
-    path: "results/survey/:surveyId/:patientId",
+    path: "results/survey/:surveyId",
     component: ResultsComponent
-  }
+  },
+  // {
+  //   path: "results/survey/:surveyId/:patientId",
+  //   component: ResultsComponent
+  // }
 ]
 
 @NgModule({
@@ -162,7 +170,11 @@ const ROUTES: Routes = [
     MatStepperModule,
     CdkDragHandle,
     MatTooltipModule,
-    MatMenuModule
+    MatMenuModule,
+    MatAutocompleteModule,
+    MatPaginatorModule,
+    MatSortModule,
+    MatProgressSpinnerModule
   ],
   providers: [
     {

@@ -1,16 +1,12 @@
 .surveys-list {
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 56px;
   background-color: #FFFFFF;
   padding: 24px;
   border: 1px solid #e0e0e0;
   border-radius: 4px;
   margin-bottom: 32px;
-}
-
-.list {
-  padding-top: 24px;
 }
 
 .search-block {
@@ -61,4 +57,8 @@ table tr:last-child td /*To remove the last border*/
 
 .actions {
   text-align: center;
+}
+
+#patient-survey-search {
+  width: 100%;
 }

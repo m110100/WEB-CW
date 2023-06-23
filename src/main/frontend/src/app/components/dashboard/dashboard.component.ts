@@ -170,7 +170,9 @@ export class DashboardComponent implements OnInit {
 
   deleteSurvey(survey: SurveyInfoResponse) {
     const id: number = survey.id;
-    const surveyIndex: number = this.surveys.indexOf(survey);
+    const surveyIndex: number = this.surveys.findIndex((survey: SurveyInfoResponse) => {
+      return survey.id === id;
+    });
     const latestSurveyIndex: number = this.latestSurveys.findIndex((latestSurvey: LatestSurveyResponse) => {
       return latestSurvey.id === id;
     })
@@ -278,11 +280,10 @@ export class DashboardComponent implements OnInit {
     }
   }
 
-  seeResults(patient: User, survey: SurveyInfoResponse | PatientSurveyInfo) {
-    const patientId = patient.id;
+  seeResults(survey: PatientSurveyInfo) {
     const surveyId = survey.id;
 
-    this.router.navigate(['results/survey/', surveyId, patientId]);
+    this.router.navigate(['results/survey/', surveyId]);
   }
 
   toggleSidenav() {

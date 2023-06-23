@@ -19,6 +19,11 @@
   <mat-sidenav-content>
     <div *ngIf="user.role === 'DOCTOR'">
       <div class="container">
+        <div class="nothing-block" *ngIf="doctorSurveys.length === 0 && doctorPatientsSurveys.length === 0">
+          <span>
+            Ничего не найдено.
+          </span>
+        </div>
         <div class="surveys-list">
           <div class="doctor-surveys">
             <span class="mat-headline-5">Мои опросы</span>
@@ -71,7 +76,7 @@
                     </button>
 
                     <mat-menu #actionsMenu="matMenu">
-                      <button mat-menu-item>Посмотреть результаты</button>
+                      <button mat-menu-item [routerLink]="['/results/survey', survey.id]">Посмотреть результаты</button>
                       <button mat-menu-item (click)="deleteSurvey(survey)">Удалить</button>
                     </mat-menu>
                   </td>
@@ -88,12 +93,65 @@
             <span class="mat-headline-5">Опросы пациентов</span>
 
             <mat-divider class="divider"></mat-divider>
+
+            <div class="search-block">
+              <mat-form-field id="patient-survey-search" appearance="outline">
+                <mat-label>Поиск</mat-label>
+                <mat-icon matPrefix>search</mat-icon>
+                <input matInput type="text" placeholder="Название" [(ngModel)]="patientSurveyFilter">
+              </mat-form-field>
+            </div>
+
+            <table mat-table [dataSource]="doctorPatientsSurveys">
+              <ng-container matColumnDef="title">
+                <th mat-header-cell *matHeaderCellDef> Название </th>
+                <td mat-cell *matCellDef="let survey"> {{ survey.title }} </td>
+              </ng-container>
+
+              <ng-container matColumnDef="isPublic">
+                <th mat-header-cell *matHeaderCellDef> Доступ </th>
+                <td mat-cell *matCellDef="let survey"> {{ survey.isPublic ? 'Всем' : 'Ограничен' }} </td>
+              </ng-container>
+
+              <ng-container matColumnDef="isRating">
+                <th mat-header-cell *matHeaderCellDef> Шкала оценки </th>
+                <td mat-cell *matCellDef="let survey"> {{ survey.isRating ? 'Да' : 'Нет' }} </td>
+              </ng-container>
+
+              <ng-container matColumnDef="createdAt">
+                <th mat-header-cell *matHeaderCellDef> Дата создания </th>
+                <td mat-cell *matCellDef="let survey"> {{ survey.createdAt | date:'dd.MM.yyyy' }} </td>
+              </ng-container>
+
+              <ng-container matColumnDef="actions">
+                <th mat-header-cell *matHeaderCellDef class="actions"> Действия </th>
+                <td mat-cell *matCellDef="let survey" class="actions">
+                  <button mat-icon-button color="primary" [matMenuTriggerFor]="actionsMenu">
+                    <mat-icon>more_horiz</mat-icon>
+                  </button>
+
+                  <mat-menu #actionsMenu="matMenu" xPosition="after">
+                    <button mat-menu-item [routerLink]="['/results/survey', survey.id]">Посмотреть результаты</button>
+                  </mat-menu>
+                </td>
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="doctorSurveyDisplayedColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: doctorSurveyDisplayedColumns"
+                  [ngClass]="{'hidden': !isDoctorPatientSurveyMatch(row)}"></tr>
+            </table>
           </div>
         </div>
       </div>
     </div>
+
     <div *ngIf="user.role === 'PATIENT'">
       <div class="container">
+        <div class="nothing-block" *ngIf="patientSurveys.length === 0">
+          <span>
+            Ничего не найдено.
+          </span>
+        </div>
         <div class="block" *ngIf="patientSurveys.length !== 0">
           <span class="mat-headline-5">Мои опросы</span>
 
@@ -142,7 +200,8 @@
 
                   <mat-menu #actionsMenu="matMenu">
                     <button mat-menu-item [disabled]="getCurrentDate(survey)" (click)="passSurvey(survey)">Пройти опрос</button>
-                    <button mat-menu-item [disabled]="survey.lastPassageDate === null">Посмотреть результаты</button>
+                    <button mat-menu-item [disabled]="survey.lastPassageDate === null"
+                            [routerLink]="['/results/survey', survey.id]">Посмотреть результаты</button>
                   </mat-menu>
                 </td>
               </ng-container>

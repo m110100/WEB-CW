@@ -13,6 +13,8 @@ export class SignupComponent implements OnInit {
   hidePassword: boolean = true;
   signupForm: FormGroup;
 
+  signedUp: boolean = false;
+
   constructor(
     private authService: AuthService,
     private router: Router
@@ -40,6 +42,8 @@ export class SignupComponent implements OnInit {
 
   signup() {
     if (this.signupForm.valid) {
+      this.signedUp = true;
+
       const request: SignupRequest = {
         surname: this.signupForm.value.surname,
         name: this.signupForm.value.name,
@@ -52,7 +56,9 @@ export class SignupComponent implements OnInit {
       this.authService.signup(request).subscribe(
         () => {
           this.authService.setIsRegistered(true);
-          this.router.navigate(['/auth/confirm-email']);
+          if (this.authService.getIsRegistered()) {
+            this.router.navigate(['/auth/confirm-email']);
+          }
         },
         error => {
           console.log(error);

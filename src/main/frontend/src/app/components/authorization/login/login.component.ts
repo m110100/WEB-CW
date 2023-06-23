@@ -15,6 +15,8 @@ export class LoginComponent implements OnInit {
   hidePassword: boolean = true;
   loginForm: FormGroup;
 
+  loggedIn: boolean = false;
+
   constructor(
     private authService: AuthService,
     private router: Router
@@ -31,6 +33,8 @@ export class LoginComponent implements OnInit {
 
   login() {
     if (this.loginForm.valid) {
+      this.loggedIn = true;
+
       const email: string = this.loginForm.value.email;
       const password: string = this.loginForm.value.password;
 
@@ -43,6 +47,7 @@ export class LoginComponent implements OnInit {
         this.authService.setIsLoggedIn(true);
         this.router.navigate(["/auth/confirm-login"])
       }, error => {
+        this.loggedIn = false;
         this.errorMessage = 'Ошибка авторизации. Неправильный email или пароль'
       });
     } else {

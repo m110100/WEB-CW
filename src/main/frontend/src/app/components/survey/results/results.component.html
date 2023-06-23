@@ -1,1 +1,115 @@
-<p>results works!</p>
+<mat-sidenav-container>
+  <mat-sidenav mode="side" opened class="sidenav"
+               [fixedInViewport]="true" [fixedTopGap]="0"
+               [fixedBottomGap]="0">
+    <div class="sidenav-content"
+         (mouseenter)="toggleSidenav()"
+         (mouseleave)="hideSidenav()">
+      <ng-container *ngFor="let item of sidenavItems">
+        <div class="sidenav-content-item" [ngClass]="{'logout': item.icon === 'logout'}"
+             *ngIf="shouldDisplayMenuItem(item)"
+             [routerLink]="item.link"
+             (click)="menuItemClicked(item)">
+          <mat-icon>{{ item.icon }}</mat-icon>
+          <span *ngIf="hoverSidenav">{{ item.text }}</span>
+        </div>
+      </ng-container>
+    </div>
+  </mat-sidenav>
+  <mat-sidenav-content>
+    <div class="container">
+      <div *ngIf="survey">
+        <div class="form-preview-block-info info-block-border">
+          <div>
+            <span class="mat-headline-5">Информация опроса</span>
+            <mat-divider class="divider"></mat-divider>
+          </div>
+          <div class="info info-block">
+            <span>
+              {{ survey.title }}
+            </span>
+            <span class="description">
+              {{ survey.description }}
+            </span>
+          </div>
+        </div>
+        <div class="form-preview-block-results info-block-border">
+          <div>
+            <div id="info">
+              <span>Результаты опроса</span>
+              <mat-icon *ngIf="user.role === 'DOCTOR'"
+                        class="material-icons-outlined"
+                        id="info-icon"
+                        matTooltip="Выберите пациента для отображения результатов"
+                        matTooltipPosition="right">
+                info
+              </mat-icon>
+            </div>
+            <mat-divider class="divider"></mat-divider>
+          </div>
+
+          <div class="search" *ngIf="user.role === 'DOCTOR'">
+            <mat-form-field *ngIf="patients && patients.length !== 0" appearance="outline" color="primary"
+                            style="width: 100%">
+              <mat-label>Пациент</mat-label>
+              <input matInput placeholder="ФИО пациента"
+                     [matAutocomplete]="auto"
+                     [formControl]="patientControl">
+              <mat-autocomplete #auto (optionSelected)="getPatientResults($event.option.value, survey.id)">
+                <mat-option [value]="">Не выбран</mat-option>
+                <mat-option *ngFor="let patient of filteredPatients | async"
+                            [value]="patient">
+                  {{ patient.surname + ' ' + patient.name + ' ' + patient.patronymic }}
+                </mat-option>
+              </mat-autocomplete>
+            </mat-form-field>
+          </div>
+
+          <ng-container *ngIf="results.length !== 0 && results">
+            <div class="block">
+              <div *ngIf="results[0].givenRecommendation"
+                        class="form-preview-block">
+                <span class="info">
+                  Рекомендация
+                </span>
+                <!-- Рекомендация всегда одна и та же -->
+                <span class="description" id="desc">
+                  {{ results[0].givenRecommendation.trim() }}
+                </span>
+              </div>
+              <div class="form-preview-block-questions"
+                      [ngClass]="{'not-recommendation': results[0].givenRecommendation === null}">
+                <div>
+                  <span class="info">
+                    Ответы
+                  </span>
+                </div>
+                <div>
+                  <div *ngFor="let question of getUniqueQuestions(results)" class="questions-gap">
+                    <div class="questions">
+                      <div class="question">
+                        {{ question.question.questionText }}
+                      </div>
+                      <div class="a">
+                        <div *ngFor="let answer of getAnswersForQuestion(results, question.question.id)" class="answer">
+                          <div class="answer-info">
+                            <mat-icon>
+                              {{ getAnswerIcon(question.question.questionType.toString()) }}
+                            </mat-icon>
+                            <span>
+                              {{ answer.givenAnswer }}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </ng-container>
+        </div>
+      </div>
+    </div>
+  </mat-sidenav-content>
+</mat-sidenav-container>

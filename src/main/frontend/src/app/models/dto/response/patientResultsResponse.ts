@@ -1,7 +1,7 @@
 import {PatientResultsQuestionResponse} from "./patientResultsQuestionResponse";
 
 export interface PatientResultsResponse {
-  givenRecommendation: string,
+  givenRecommendation: string | null,
   question: PatientResultsQuestionResponse,
   givenAnswer: string
 }

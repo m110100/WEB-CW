@@ -26,12 +26,12 @@
         </div>
         <div class="form-preview-block" *ngIf="survey">
           <div class="form-preview-block-info">
-    <span>
-      {{ survey.title }}
-    </span>
-            <span id="survey-description">
-      {{ survey.description }}
-    </span>
+            <span>
+              {{ survey.title }}
+            </span>
+                    <span id="survey-description">
+              {{ survey.description }}
+            </span>
           </div>
           <div class="form-preview-block-questions" *ngIf="questions">
             <div *ngFor="let question of questions; let i = index">

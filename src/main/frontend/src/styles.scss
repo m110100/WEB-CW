@@ -49,6 +49,7 @@ body {
 .sidenav {
   width: auto;
   padding-top: 32px;
+  background-color: #FFFFFF;
 
   .sidenav-content {
     display: flex;
@@ -65,12 +66,13 @@ body {
       font-size: 14px;
       font-weight: 500;
       cursor: pointer;
-      color: #212121;
+      color: #3F51B5;
       transition: 0.2s;
     }
 
     .sidenav-content-item:hover {
-      color: #3f51b5;
+      background-color: #f3f3f7;
+      border-radius: 4px;
     }
 
     .logout {

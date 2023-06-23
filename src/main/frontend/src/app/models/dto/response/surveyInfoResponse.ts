@@ -7,7 +7,8 @@ export interface SurveyInfoResponse {
   isRating: boolean,
   isPublic: boolean,
   createdAt: string,
-  speciality: SpecialityResponse
+  speciality: SpecialityResponse,
+  creatorId: number
 }
 
 export interface PatientSurveyInfo {

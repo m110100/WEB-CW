@@ -1,9 +1,8 @@
-import {Component, OnInit} from '@angular/core';
+import {AfterViewInit, Component, OnInit, ViewChild} from '@angular/core';
 import {PatientSurveyInfo, SurveyInfoResponse} from "../../../models/dto/response/surveyInfoResponse";
 import {AuthService} from "../../../services/auth/auth.service";
 import {SurveyService} from "../../../services/survey.service";
 import {User} from "../../../models/user";
-import {LatestSurveyResponse} from "../../../models/dto/response/latestSurveyResponse";
 import {SpecialityResponse} from "../../../models/dto/response/specialityResponse";
 import {SpecialityService} from "../../../services/speciality.service";
 import {AccessPassingSurveyGuard} from "../../../guards/access-passing-survey.guard";
@@ -62,6 +61,7 @@ export class SurveysComponent implements OnInit {
   patientSurveyDisplayedColumns: string[] = ['title', 'speciality', 'lastPassageDate', 'actions'];
 
   inputFilter: string = '';
+  patientSurveyFilter: string = '';
   specialityFilter: string = '';
 
   constructor(
@@ -74,6 +74,7 @@ export class SurveysComponent implements OnInit {
 
   user: User;
   doctorSurveys: SurveyInfoResponse[] = [];
+  doctorPatientsSurveys: SurveyInfoResponse[] = [];
   specialities: SpecialityResponse[] = [];
   patientSurveys: PatientSurveyInfo[] = [];
 
@@ -82,6 +83,7 @@ export class SurveysComponent implements OnInit {
     this.user = this.authService.getUser();
 
     this.loadDoctorSurveys();
+    this.loadDoctorPatientsSurveys();
     this.loadPatientSurveys();
     this.loadSpecialities();
   }
@@ -92,6 +94,17 @@ export class SurveysComponent implements OnInit {
           this.doctorSurveys = surveys;
         },
         error => {
+          console.log(error);
+        })
+    }
+  }
+
+  loadDoctorPatientsSurveys() {
+    if (this.user.role === 'DOCTOR') {
+      this.surveyService.getAllSurveysPatientWhichHaveDoctorAppointment(this.user.id)
+        .subscribe((surveys: SurveyInfoResponse[]) => {
+          this.doctorPatientsSurveys = surveys;
+      }, error => {
           console.log(error);
         })
     }
@@ -118,7 +131,9 @@ export class SurveysComponent implements OnInit {
 
   deleteSurvey(survey: SurveyInfoResponse) {
     const id: number = survey.id;
-    const surveyIndex: number = this.doctorSurveys.indexOf(survey);
+    const surveyIndex: number = this.doctorSurveys.findIndex((survey: SurveyInfoResponse) => {
+      return survey.id === id;
+    });
 
     this.surveyService.deleteSurvey(id).subscribe(() => {
       this.doctorSurveys.splice(surveyIndex, 1);
@@ -135,6 +150,11 @@ export class SurveysComponent implements OnInit {
       (survey.speciality && survey.speciality.name.toLowerCase().includes(this.specialityFilter.toLowerCase()));
 
     return inputMatch && specialityMatch;
+  }
+
+  isDoctorPatientSurveyMatch(survey: SurveyInfoResponse): boolean {
+    return !this.patientSurveyFilter ||
+      survey.title.toLowerCase().includes(this.patientSurveyFilter.toLowerCase());
   }
 
   passSurvey(survey: PatientSurveyInfo) {

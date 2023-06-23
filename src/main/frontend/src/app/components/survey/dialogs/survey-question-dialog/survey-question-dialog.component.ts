@@ -1,21 +1,28 @@
-import {Component, Inject, OnInit} from '@angular/core';
+import {Component, Inject, OnInit, ViewChild} from '@angular/core';
 import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
 import {QuestionType} from "../../../../models/enums/questionType";
 import {AnswerRequest} from "../../../../models/dto/request/answerRequest";
 import {QuestionRequest} from "../../../../models/dto/request/questionRequest";
 import {CdkDragDrop, moveItemInArray} from "@angular/cdk/drag-drop";
-
+import {SurveyService} from "../../../../services/survey.service";
+import {QuestionResponse} from "../../../../models/dto/response/questionResponse";
+import {MatAutocomplete, MatAutocompleteSelectedEvent} from '@angular/material/autocomplete';
 @Component({
   selector: 'app-survey-question-dialog',
   templateUrl: './survey-question-dialog.component.html',
   styleUrls: ['./survey-question-dialog.component.scss', '../dialog.scss']
 })
 export class SurveyQuestionDialogComponent implements OnInit{
+  @ViewChild('auto') auto: MatAutocomplete;
+
   updatedQuestion: QuestionRequest;
   updatedQuestionAnswers: AnswerRequest[];
   isRating: boolean;
 
+  templateQuestions: QuestionResponse[];
+
   constructor(
+    private surveyService: SurveyService,
     public dialogRef: MatDialogRef<SurveyQuestionDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: { question: QuestionRequest, isRating: boolean },
   ) {
@@ -32,7 +39,14 @@ export class SurveyQuestionDialogComponent implements OnInit{
         }
       })
     }
-    }
+
+    this.surveyService.getAllTemplateQuestions().subscribe((questions: QuestionResponse[]) => {
+      this.templateQuestions = questions.filter(question =>
+        question.questionType.toString() === this.questionTypeToString(this.updatedQuestion.questionType));
+
+      console.log(this.templateQuestions);
+    })
+  }
 
   addAnswer() {
     const newAnswer: AnswerRequest = {
@@ -93,6 +107,33 @@ export class SurveyQuestionDialogComponent implements OnInit{
         return 'radio_button_unchecked';
       default:
         return '';
+    }
+  }
+
+  questionTypeToString(questionType: QuestionType): string {
+    switch (questionType) {
+      case QuestionType.TEXT:
+        return "TEXT";
+      case QuestionType.SINGLE:
+        return "SINGLE";
+      case QuestionType.MULTIPLE:
+        return "MULTIPLE";
+      default:
+        throw new Error("Unknown question type");
+    }
+  }
+
+  handleOptionSelected(event: MatAutocompleteSelectedEvent) {
+    const option: QuestionResponse = event.option.value;
+    this.updatedQuestion.questionText = option.questionText;
+    this.updatedQuestionAnswers = option.answers;
+
+    if (this.isRating) {
+      this.updatedQuestionAnswers.forEach(answer => {
+        if (answer.score == null) {
+          answer.score = 0;
+        }
+      })
     }
   }
 

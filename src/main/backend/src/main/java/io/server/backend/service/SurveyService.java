@@ -1,5 +1,6 @@
 package io.server.backend.service;
 
+import io.server.backend.dto.mapper.PatientMapper;
 import io.server.backend.dto.mapper.PatientResultsMapper;
 import io.server.backend.dto.mapper.SurveyMapper;
 import io.server.backend.dto.request.*;
@@ -30,6 +31,7 @@ public class SurveyService {
     private final SurveyResultService surveyResultService;
 
     private final PatientResultsMapper patientResultsMapper;
+    private final PatientMapper patientMapper;
     private final SurveyMapper surveyMapper;
 
     public List<SurveyInfoResponse> getAllSurveys() {
@@ -41,6 +43,13 @@ public class SurveyService {
 
     public List<SurveyInfoResponse> getAllDoctorSurveysInfo(Long doctorId) {
         return surveyRepository.findByUserIdAndIsEnabledIsTrueOrderByCreatedAtDesc(doctorId)
+                .stream()
+                .map(surveyMapper)
+                .collect(Collectors.toList());
+    }
+
+    public List<SurveyInfoResponse> getAllSurveysPatientWhichHaveDoctorAppointment(Long doctorId) {
+        return surveyRepository.findAllSurveysPatientWhichHaveDoctorAppointment(doctorId)
                 .stream()
                 .map(surveyMapper)
                 .collect(Collectors.toList());
@@ -70,12 +79,26 @@ public class SurveyService {
                 .collect(Collectors.toList());
     }
 
+    public List<PatientResponse> getAllPatientsWhichCompleteDoctorSurvey(Long doctorId, Long surveyId) {
+        return surveyRepository.findPatientsWhichCompleteDoctorSurvey(doctorId, surveyId)
+                .stream()
+                .map(patientMapper)
+                .collect(Collectors.toList());
+    }
+
+    public List<PatientResponse> getAllPatientsWhichCompleteSurveyAndHaveDoctorAppointment(Long doctorId, Long surveyId) {
+        return surveyRepository.findPatientsWhichCompleteSurveyAndHaveDoctorAppointment(doctorId, surveyId)
+                .stream()
+                .map(patientMapper)
+                .collect(Collectors.toList());
+    }
+
     public List<LatestSurveyResponse> getAllDoctorLatestSurveys(Long doctorId) {
         return surveyRepository.findLatestSurveys(doctorId, PageRequest.of(0, 5));
     }
 
     public SurveyInfoResponse getSurveyInfoById(Long id) {
-        return surveyRepository.findById(id)
+        return surveyRepository.findByIdAndIsEnabledIsTrue(id)
                 .map(surveyMapper)
                 .orElseThrow(() -> new RuntimeException(
                    "Survey with id %s not found".formatted(id)
@@ -109,6 +132,7 @@ public class SurveyService {
             var question = Question.builder()
                     .questionText(questionRequest.questionText())
                     .questionType(questionRequest.questionType())
+                    .isTemplate(null)
                     .order(questionRequest.order())
                     .inputMinLimit(questionRequest.inputMinLimit())
                     .inputMaxLimit(questionRequest.inputMaxLimit())

@@ -24,6 +24,13 @@ public class QuestionService {
                 .collect(Collectors.toList());
     }
 
+    public List<QuestionResponse> getAllTemplateQuestions() {
+        return questionRepository.findTemplateQuestions()
+                .stream()
+                .map(questionMapper)
+                .collect(Collectors.toList());
+    }
+
     public List<QuestionResponse> getAllQuestionsBySurveyId(Long surveyId) {
         return questionRepository.findQuestionsBySurveyIdOrderByOrderAsc(surveyId)
                 .stream()

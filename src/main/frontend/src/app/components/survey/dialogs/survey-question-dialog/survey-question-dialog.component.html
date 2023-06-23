@@ -9,8 +9,14 @@
       <textarea type="text" matInput cdkTextareaAutosize
                 [value]="updatedQuestion.questionText"
                 [(ngModel)]="updatedQuestion.questionText"
+                [matAutocomplete]="auto"
                 placeholder="Введите текст вопроса">
       </textarea>
+      <mat-autocomplete #auto *ngIf="templateQuestions" (optionSelected)="handleOptionSelected($event)">
+        <mat-option *ngFor="let option of templateQuestions" [value]="option">
+          {{ option.questionText }}
+        </mat-option>
+      </mat-autocomplete>
     </mat-form-field>
   </div>
   <div class="dialog-container" *ngIf="updatedQuestion.questionType === QuestionType.TEXT &&

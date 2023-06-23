@@ -16,6 +16,12 @@
   gap: 24px;
   padding-top: 24px;
 
+  .latest-card:hover {
+    cursor: pointer;
+    border-color: #3F51B5;
+    transition: 0.3s cubic-bezier(0.32, 0, 0.67, 0);
+  }
+
   .latest-card {
     display: flex;
     flex-direction: column;

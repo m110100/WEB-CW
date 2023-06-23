@@ -25,6 +25,9 @@ public class Question {
     @Enumerated(value = EnumType.STRING)
     private QuestionType questionType;
 
+    @Column(name = "is_template", nullable = true)
+    private Boolean isTemplate;
+
     @Column(name = "question_order", nullable = false)
     private Integer order;
 
@@ -35,7 +38,7 @@ public class Question {
     private Integer inputMaxLimit;
 
     @ManyToOne
-    @JoinColumn(name = "survey_id", nullable = false)
+    @JoinColumn(name = "survey_id", nullable = true)
     private Survey survey;
 
     @OneToMany(mappedBy = "question")

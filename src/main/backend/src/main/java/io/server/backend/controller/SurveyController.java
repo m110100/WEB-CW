@@ -5,6 +5,7 @@ import io.server.backend.dto.request.SurveyRequest;
 import io.server.backend.dto.response.*;
 import io.server.backend.service.*;
 import lombok.RequiredArgsConstructor;
+import org.apache.coyote.Response;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,8 +30,8 @@ public class SurveyController {
         return ResponseEntity.ok(surveyService.getAllSurveys());
     }
 
-    @GetMapping("/patient")
-    public ResponseEntity<List<PatientSurveyInfo>> findAllPatientSurveys(@RequestParam(name = "id") Long patientId) {
+    @GetMapping("/patient/{patientId}")
+    public ResponseEntity<List<PatientSurveyInfo>> findAllPatientSurveys(@PathVariable(name = "patientId") Long patientId) {
         if (surveyService.getAllPatientSurveysInfo(patientId) == null) {
             return ResponseEntity.notFound().build();
         }
@@ -38,9 +39,9 @@ public class SurveyController {
         return ResponseEntity.ok(surveyService.getAllPatientSurveysInfo(patientId));
     }
 
-    @GetMapping("/patient/results")
+    @GetMapping("/patient/{patientId}/results")
     public ResponseEntity<List<PatientResultsResponse>> findPatientResults(
-            @RequestParam(name = "patientId") Long patientId,
+            @PathVariable(name = "patientId") Long patientId,
             @RequestParam(name = "surveyId") Long surveyId
     ) {
         if (surveyService.getSurveyInfoById(surveyId) == null) {
@@ -54,8 +55,26 @@ public class SurveyController {
         return ResponseEntity.ok(surveyService.getPatientResults(patientId, surveyId));
     }
 
-    @GetMapping("/doctor")
-    public ResponseEntity<List<SurveyInfoResponse>> findAllDoctorSurveys(@RequestParam(name = "id") Long doctorId) {
+    @GetMapping("/doctor/{doctorId}/results/patients")
+    public ResponseEntity<List<PatientResponse>> findPatientsWhichCompleteSurveyAndHaveDoctorAppointment(
+            @PathVariable(name = "doctorId") Long doctorId,
+            @RequestParam(name = "surveyId") Long surveyId
+    ) {
+        if (surveyService.getSurveyInfoById(surveyId) == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        if (userService.getUserById(doctorId) == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok(
+                surveyService.getAllPatientsWhichCompleteSurveyAndHaveDoctorAppointment(doctorId, surveyId)
+        );
+    }
+
+    @GetMapping("/doctor/{doctorId}")
+    public ResponseEntity<List<SurveyInfoResponse>> findAllDoctorSurveys(@PathVariable(name = "doctorId") Long doctorId) {
         if (surveyService.getAllDoctorSurveysInfo(doctorId) == null) {
             return ResponseEntity.notFound().build();
         }
@@ -63,9 +82,34 @@ public class SurveyController {
         return ResponseEntity.ok(surveyService.getAllDoctorSurveysInfo(doctorId));
     }
 
-    @GetMapping("/latest")
+    @GetMapping("/doctor/{doctorId}/patients/results")
+    public ResponseEntity<List<SurveyInfoResponse>> findAllSurveysPatientWhichHaveDoctorAppointment(
+                @PathVariable(name = "doctorId") Long doctorId) {
+        if (userService.getUserById(doctorId) == null) {
+            ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok(surveyService.getAllSurveysPatientWhichHaveDoctorAppointment(doctorId));
+    }
+
+    @GetMapping("/doctor/{doctorId}/results")
+    public ResponseEntity<List<PatientResponse>> findPatientsWhichCompleteDoctorSurvey(
+            @PathVariable(name = "doctorId") Long doctorId,
+            @RequestParam(name = "surveyId") Long surveyId
+    ) {
+        if (userService.getUserById(doctorId) == null) {
+            ResponseEntity.notFound().build();
+        }
+        if (surveyService.getSurveyInfoById(surveyId) == null) {
+            ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok(surveyService.getAllPatientsWhichCompleteDoctorSurvey(doctorId, surveyId));
+    }
+
+    @GetMapping("/doctor/{doctorId}/latest")
     public ResponseEntity<List<LatestSurveyResponse>> findAllDoctorLatestSurveys(
-            @RequestParam(name = "id") Long doctorId) {
+            @PathVariable(name = "doctorId") Long doctorId) {
         if (surveyService.getAllDoctorLatestSurveys(doctorId) == null) {
             return ResponseEntity.notFound().build();
         }
@@ -88,7 +132,6 @@ public class SurveyController {
             return ResponseEntity.status(404).build();
         }
 
-//        return ResponseEntity.ok(questionService.getAllQuestionsBySurveyId(id));
         return ResponseEntity.ok(questionService.getAllQuestionsWithAnswers(id));
     }
 
